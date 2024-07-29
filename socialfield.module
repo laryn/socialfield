@@ -188,11 +188,12 @@ function _socialfield_field_instance_settings_form($form, &$form_state) {
     }
     $use_service = in_array($service_name, $form_state['#used_services']);
     $display_service = in_array($service_name, $form_state['#services']);
+    $service_label = ucfirst($service_name);
 
     $service_markup = '<div class="social-links social-links-instance-settings">' .
         '<span class="service-' . $service_name . '">' .
           '<i class="icon ' . $services[$service_name]['icon'] . '"></i></span>' .
-        '<span class="instance-settings-table-service-name">' . ucfirst($service_name) . '</span>' .
+        '<span class="instance-settings-table-service-name">' . $service_label . '</span>' .
       '</div>';
 
     $row = array(
@@ -205,11 +206,13 @@ function _socialfield_field_instance_settings_form($form, &$form_state) {
       ),
       'used_services' => array(
         '#type' => 'checkbox',
+        '#title' => t('Allow @service', array('@service' => $service_label)),
         '#default_value' => $use_service,
         '#attributes' => array('class' => array('socialfield-table-used-service-checkbox')),
       ),
       'displayed_services' => array(
         '#type' => 'checkbox',
+        '#title' => t('Display @service', array('@service' => $service_label)),
         '#default_value' => $display_service,
         '#attributes' => array('class' => array('socialfield-table-displayed-service-checkbox')),
       ),
@@ -234,7 +237,7 @@ function _socialfield_field_instance_settings_form($form, &$form_state) {
   // Theme this part of the form as a table.
   $form['table'] = array(
     '#theme' => 'socialfield_form_table',
-    '#header' => array(t('Service'), t('Used services'), t('Displayed services'), t('Weight')),
+    '#header' => array(t('Services'), t('Allowed services'), t('Displayed services'), t('Weight')),
     'rows' => $rows,
     '#attributes' => array('id' => 'socialfield-instance-settings-services-table'),
     '#element_validate' => array('_socialfield_validate_services'),
