@@ -6,24 +6,26 @@
  */
 
 (function ($) {
-	$(window).on('load', function() {
-	  $('.add_one_social_service').val('_none');
-		$('#socialfield-instance-settings-services-table .socialfield-table-displayed-service-checkbox').on('click', function() {
-			// Getting elements status.
-			var displayedServiceStatus = $(this).attr('checked');
-			var usedService = $(this).closest('tr').find('.socialfield-table-used-service-checkbox');
-			var usedServiceStatus = usedService.attr('checked');
+  $(window).on('load', function() {
+    $('.add_one_social_service').val('_none');
+    $('#socialfield-instance-settings-services-table .socialfield-table-displayed-service-checkbox').on('change', function() {
 
-			if (displayedServiceStatus) {
-				// Saving the original status of usedService.
-				usedService.data('original-status', usedServiceStatus);
-				usedService.attr('checked', true);
-				usedService.attr('disabled', true);
-			} else {
-				usedService.attr('checked', usedService.data('original-status'));
-				usedService.removeAttr('disabled');
-			}
+      // Getting elements status.
+      var displayedServiceStatus = $(this).is(':checked');
+      var usedService = $(this).closest('tr').find('.socialfield-table-used-service-checkbox');
+      var usedServiceStatus = usedService.is(':checked');
 
-		});
-	});
+      if (displayedServiceStatus) {
+        // Saving the original status of usedService.
+        usedService.data('original-status', usedServiceStatus);
+        usedService.attr('checked', true);
+        usedService.attr('disabled', true);
+      }
+      else {
+        usedService.attr('checked', usedService.data('original-status'));
+        usedService.removeAttr('disabled');
+      }
+
+    });
+  });
 })(jQuery);
