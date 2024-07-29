@@ -9,7 +9,8 @@
  */
 function theme_socialfield_drag_components($variables) {
   $element = $variables['element'];
-  backdrop_add_tabledrag('socialfield-table', 'order', 'sibling', 'item-row-weight');
+  $unique = socialfield_random_string();
+  backdrop_add_tabledrag('socialfield-table-' . $unique, 'order', 'sibling', 'item-row-weight');
   $services = config_get('socialfield.settings', 'services');
 
   $header = array(t($element['#title']), '', '', '');
@@ -44,13 +45,34 @@ function theme_socialfield_drag_components($variables) {
   // Sorting elements by their weight.
   backdrop_sort($rows, array('weight'));
 
+  $description  = '<div class="description">';
+  $description .= backdrop_render($element['description']);
+  $description .= '</div>';
+
+  $add_more = backdrop_render($element['add_one_social']) . $description;
+
   return theme('table', array(
     'header' => $header,
     'rows' => $rows,
     'attributes' => array(
-      'id' => 'socialfield-table'
+      'id' => 'socialfield-table-' . $unique,
     ),
-  )) . backdrop_render($element['add_one_social']) . '<div class="description">' . backdrop_render($element['description']) . '</div>';
+  )) . $add_more;
+}
+
+/**
+ * Helper function, generates an 8 character random string.
+ *
+ * @see BackdropTestCase::randomName()
+ */
+function socialfield_random_string($length = 8) {
+  $values = array_merge(range(65, 90), range(97, 122), range(48, 57));
+  $max = count($values) - 1;
+  $str = chr(mt_rand(97, 122));
+  for ($i = 1; $i < $length; $i++) {
+    $str .= chr($values[mt_rand(0, $max)]);
+  }
+  return $str;
 }
 
 /**
