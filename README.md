@@ -36,7 +36,6 @@ Current Maintainers
 -------------------
 
 - Jen Lampton (https://github.com/jenlampton)
-- Daniel Rose (https://github.com/danielrose28)
 - Seeking additional maintainers
 
 
