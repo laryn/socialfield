@@ -56,6 +56,7 @@ function theme_socialfield_drag_components($variables) {
     'rows' => $rows,
     'attributes' => array(
       'id' => 'socialfield-table-' . $unique,
+      'class' => array('socialfield-table'),
     ),
   )) . $add_more;
 }
