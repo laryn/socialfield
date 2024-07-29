@@ -2,7 +2,7 @@ Socialfield
 ============
 
 The Social field module provides a single field that allows you to collect links
-to multiple social networks like facebook, twitter, googleplus, linkedin, etc.
+to multiple social networks like facebook, twitter, linkedin, etc.
 
 The links are presented as anchor tags with specific classes. These classes can
 can be customized for each service. The classes can be used in conjunction with

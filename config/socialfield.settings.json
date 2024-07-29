@@ -16,11 +16,6 @@
             "icon": "icon-instagram",
             "validation_pattern": "*instagram.com/*"
         },
-        "googleplus": {
-            "name": "Google+",
-            "icon": "icon-gplus",
-            "validation_pattern": "*plus.google.com/*"
-        },
         "linkedin": {
             "name": "LinkedIn",
             "icon": "icon-linkedin",
