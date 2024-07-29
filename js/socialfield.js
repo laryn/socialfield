@@ -6,9 +6,9 @@
  */
 
 (function ($) {
-	$(window).load(function() {
+	$(window).on('load', function() {
 	  $('.add_one_social_service').val('_none');
-		$('#socialfield-instance-settings-services-table .socialfield-table-displayed-service-checkbox').click(function() {
+		$('#socialfield-instance-settings-services-table .socialfield-table-displayed-service-checkbox').on('click', function() {
 			// Getting elements status.
 			var displayedServiceStatus = $(this).attr('checked');
 			var usedService = $(this).closest('tr').find('.socialfield-table-used-service-checkbox');
