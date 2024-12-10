@@ -13,20 +13,25 @@ function socialfield_settings() {
     t('Service'),
     t('Icon class'),
     t('Validation pattern'),
-    t('Actions'),
+    t('Operations'),
   );
 
   $rows = array();
   $services = config_get('socialfield.settings', 'services');
   if (is_array($services)) {
     foreach ($services as $name => $service) {
-      $edit = l(
-        t('edit'),
-        'admin/config/media/socialfield/' . $name . '/edit'
-      );
-      $delete = l(
-        t('delete'),
-        'admin/config/media/socialfield/' . $name . '/delete'
+      $dropbuttons = array(
+        '#type' => 'dropbutton',
+        '#links' => array(
+          'edit' => array(
+            'title' => t('Edit'),
+            'href' => 'admin/config/media/socialfield/' . $name . '/edit',
+          ),
+          'delete' => array(
+            'title' => t('Delete'),
+            'href' => 'admin/config/media/socialfield/' . $name . '/delete',
+          ),
+        ),
       );
 
       $rows[] = array(
@@ -34,7 +39,7 @@ function socialfield_settings() {
         $name,
         $service['icon'],
         str_replace("\n", '<br />', $service['validation_pattern']),
-        $edit . ' ' . $delete
+        backdrop_render($dropbuttons),
       );
     }
   }
