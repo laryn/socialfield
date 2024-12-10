@@ -117,6 +117,9 @@ function socialfield_install() {
  */
 function socialfield_update_1000() {
   $services = variable_get('socialfield.settings', 'services');
-  config_set('socialfield.settings', 'services', $services);
+  $config = config('socialfield.settings');
+  $config->set('services', $services);
+  $config->save();
+
   variable_del('socialfield_services');
 }
