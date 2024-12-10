@@ -110,6 +110,7 @@ function socialfield_field_info() {
 
   return array(
     'social_links_field' => array(
+      'module' => 'socialfield',
       'label' => t('Social links'),
       'description' => t('Social links'),
       'default_widget' => 'socialfield_widget',
