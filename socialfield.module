@@ -98,15 +98,19 @@ function socialfield_service_exists($name){
  * Implements hook_field_info().
  */
 function socialfield_field_info() {
+  $used_services = $displayed_services = $weights = array();
+
   $services = config_get('socialfield.settings', 'services');
-  $used_services = is_array($services) ? array_keys($services) : array('youtube');
-  $used_services = array_combine($used_services, $used_services);
+  if (is_array($services)) {
+    $used_services = is_array($services) ? array_keys($services) : array('youtube');
+    $used_services = array_combine($used_services, $used_services);
 
-  $displayed_services = array('youtube', 'instagram', 'linkedin');
-  $displayed_services = array_combine($displayed_services, $displayed_services);
+    $displayed_services = array('youtube', 'instagram', 'linkedin');
+    $displayed_services = array_combine($displayed_services, $displayed_services);
 
-  $weight_values = range(-10, count($used_services) - 11);
-  $weights = array_combine($used_services, $weight_values);
+    $weight_values = range(-10, count($used_services) - 11);
+    $weights = array_combine($used_services, $weight_values);
+  }
 
   return array(
     'social_links_field' => array(
