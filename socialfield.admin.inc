@@ -18,23 +18,25 @@ function socialfield_settings() {
 
   $rows = array();
   $services = config_get('socialfield.settings', 'services');
-  foreach ($services as $name => $service) {
-    $edit = l(
-      t('edit'),
-      'admin/config/media/socialfield/' . $name . '/edit'
-    );
-    $delete = l(
-      t('delete'),
-      'admin/config/media/socialfield/' . $name . '/delete'
-    );
+  if (is_array($services)) {
+    foreach ($services as $name => $service) {
+      $edit = l(
+        t('edit'),
+        'admin/config/media/socialfield/' . $name . '/edit'
+      );
+      $delete = l(
+        t('delete'),
+        'admin/config/media/socialfield/' . $name . '/delete'
+      );
 
-    $rows[] = array(
-      $service['name'],
-      $name,
-      $service['icon'],
-      str_replace("\n", '<br />', $service['validation_pattern']),
-      $edit . ' ' . $delete
-    );
+      $rows[] = array(
+        $service['name'],
+        $name,
+        $service['icon'],
+        str_replace("\n", '<br />', $service['validation_pattern']),
+        $edit . ' ' . $delete
+      );
+    }
   }
 
   $page = array();
@@ -42,6 +44,7 @@ function socialfield_settings() {
     '#markup' => theme('table', array(
       'header' => $header,
       'rows' => $rows,
+      'empty' => t('No social services were identified.'),
     ))
   );
 
