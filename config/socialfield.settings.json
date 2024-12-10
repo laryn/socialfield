@@ -1,5 +1,6 @@
 {
     "_config_name": "socialfield.settings",
+    "_module":  "socialfield",
     "services": {
         "facebook": {
             "name": "Facebook",
