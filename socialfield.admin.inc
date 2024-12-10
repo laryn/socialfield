@@ -23,8 +23,8 @@ function socialfield_settings() {
       $dropbuttons = array(
         '#type' => 'dropbutton',
         '#links' => array(
-          'edit' => array(
-            'title' => t('Edit'),
+          'configure' => array(
+            'title' => t('Configure'),
             'href' => 'admin/config/media/socialfield/' . $name . '/edit',
           ),
           'delete' => array(
