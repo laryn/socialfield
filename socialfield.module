@@ -23,7 +23,8 @@ function socialfield_menu() {
   $items['admin/config/media/socialfield'] = array(
     'title' => 'Social field',
     'description' => 'Social field settings',
-    'page callback' => 'socialfield_settings',
+    'page callback' => 'backdrop_get_form',
+    'page arguments' => array('socialfield_settings'),
     'access arguments' => array('administer socialfield'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'socialfield.admin.inc',
@@ -587,10 +588,18 @@ function socialfield_service_validate($element, &$form_state) {
 function socialfield_field_formatter_info() {
   return array(
     'socialfield_formatter' => array(
-      'label' => t('Icons'),
+      'label' => t('Icon tag'),
       'field types' => array('social_links_field'),
       'settings' => array(
-        'link_text' => FALSE,
+        'classes' => 'socialfield',
+      ),
+    ),
+    'socialfield_formatter_icon' => array(
+      'label' => t('SVG icons'),
+      'field types' => array('social_links_field'),
+      'settings' => array(
+        'fill' => FALSE,
+        'classes' => 'socialfield',
       ),
     ),
   );
@@ -606,13 +615,19 @@ function socialfield_field_formatter_settings_form($field, $instance, $view_mode
   // Getting the actual settings.
   $settings = $display['settings'];
 
-  // Initialize the element variable.
   $element = array();
-  $element['link_text'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Hidden text in link'),
-    '#description' => t('Include the service name as hidden text (useful for screen readers).'),
-    '#default_value'  => $settings['link_text'],
+  if ($display['type'] == 'socialfield_formatter_icon') {
+    $element['fill'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Use the "fill" variation for the Phosphor icon.'),
+      '#default_value'  => $settings['fill'],
+    );
+  }
+  $element['classes'] = array(
+    '#type' => 'textfield',
+    '#title' => t('CSS classes'),
+    '#description' => t('Separate CSS classes with a space.'),
+    '#default_value'  => $settings['classes'],
   );
 
   return $element;
@@ -624,7 +639,25 @@ function socialfield_field_formatter_settings_form($field, $instance, $view_mode
 function socialfield_field_formatter_settings_summary($field, $instance, $view_mode) {
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
-  $summary = t('Display links as icons.');
+
+  switch ($display['type']) {
+    case 'socialfield_formatter':
+      $tag = '<i>';
+      break;
+    case 'socialfield_formatter_icon':
+      $tag = '<svg>';
+      break;
+  }
+  $summary = t('Use :tag tag.', array(':tag' => $tag));
+
+  if ($display['type'] == 'socialfield_formatter_icon'
+    && isset($settings['fill']) && $settings['fill']) {
+    $summary .= ' ' . t('Use "fill" variation.');
+  }
+  if (isset($settings['classes'])) {
+    $summary .= '<br>' . t("Add classes: %classes", array('%classes' => $settings['classes']));
+  }
+
   return $summary;
 }
 
@@ -633,39 +666,56 @@ function socialfield_field_formatter_settings_summary($field, $instance, $view_m
  */
 function socialfield_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
+  $services = config_get('socialfield.settings', 'services');
+  $css_path = backdrop_get_path('module', 'socialfield') . '/css/socialfield.css';
 
-  switch ($display['type']) {
-    case 'socialfield_formatter':
-      $services = config_get('socialfield.settings', 'services');
-      backdrop_add_css(backdrop_get_path('module', 'socialfield') . '/css/socialfield.css');
-      backdrop_sort($items, array('weight'));
-      foreach ($items as $key => $item) {
-        // Check if the service was deleted.
-        if (!isset($services[$item['service']])) {
-          continue;
-        }
+  $config = config('socialfield.settings');
+  // Because the setting is for removal, we reverse values here.
+  $display['global_config']['hidden_text'] = TRUE;
+  if ($remove = $config->get('remove_hidden_text')) {
+    $display['global_config']['hidden_text'] = FALSE;
+  }
 
-        $hidden_text = '';
-        // Set hidden text on link.
-        if (isset($display['settings']['link_text']) && $display['settings']['link_text']) {
-          $hidden_text = '<span class="element-invisible">' . check_plain($item['service']) . '</span>';
-        }
+  // Sort the icons into the specified order.
+  backdrop_sort($items, array('weight'));
+  foreach ($items as $key => $item) {
+    // Check if the service was deleted.
+    if (!isset($services[$item['service']])) {
+      continue;
+    }
 
-        $element[$key] = array(
-          '#theme' => array('link__socialfield__' . $item['service'], 'link__socialfield', 'link'),
-          '#path' => $item['url'],
-          '#text' => '<i class="icon ' . $services[$item['service']]['icon'] . '">' . $hidden_text . '</i>',
-          '#options' => array(
-            'html' => TRUE,
-            'attributes' => array(
-              'class' => array('field-item', 'socialfield', 'socialfield-' . $item['service']),
-              'target' => '_blank',
-            ),
-          ),
-        );
-      }
+    $service_info = $services[$item['service']];
 
-    break;
+    switch ($display['type']) {
+      case 'socialfield_formatter_icon':
+        $icon_markup = _socialfield_formatter_format_icon($item, $service_info, $display);
+        break;
+      case 'socialfield_formatter':
+        $icon_markup = _socialfield_formatter_format($item, $service_info, $display);
+        break;
+    }
+
+    $attributes = array(
+      'class' => array('field-item', 'socialfield', 'socialfield-' . $item['service']),
+    );
+
+    $new_windows = $config->get('new_windows');
+    if ($new_windows) {
+      $attributes['target'] = '_blank';
+    }
+
+    $element[$key] = array(
+      '#theme' => array('link__socialfield__' . $item['service']),
+      '#attached' => array(
+        'css' => array($css_path),
+      ),
+      '#path' => $item['url'],
+      '#text' => $icon_markup,
+      '#options' => array(
+        'html' => TRUE,
+        'attributes' => $attributes,
+      ),
+    );
   }
 
   if (!empty($element)) {
@@ -676,6 +726,57 @@ function socialfield_field_formatter_view($entity_type, $entity, $field, $instan
   }
 
   return $element;
+}
+
+/**
+ * Helper function, renders an icon as an <i> tag with classes.
+ *
+ * @see socialfield_field_formatter_view().
+ */
+function _socialfield_formatter_format_icon($item, $service_info, $display) {
+  // Determine the Icon API name.
+  $icon_name = $service_info['iconapi'];
+  if (isset($display['settings']['fill']) && $display['settings']['fill']) {
+    $icon_name = $service_info['iconapi_fill'];
+  }
+
+  // The 'icon' classes is added by icon(), so we don't ad it here.
+  $classes = array('socialfield-' . $item['service']);
+  if (isset($display['settings']['classes']) && !empty($display['settings']['classes'])) {
+    $field_classes = explode(' ', $display['settings']['classes']);
+    $classes = array_merge($field_classes, $classes);
+    dpm($classes);
+  }
+
+  $attributes = array('class' => $classes);
+  $options = array('attributes' => $attributes);
+
+  $add_hidden_text = $display['global_config']['hidden_text'];
+  if (isset($add_hidden_text) && $add_hidden_text === TRUE) {
+    $options['alt'] = check_plain($item['service']);
+  }
+
+  return icon($icon_name, $options);;
+}
+/**
+ * Helper function, renders an icon as a SVG tag using Icon API.
+ *
+ * @see socialfield_field_formatter_view().
+ */
+function _socialfield_formatter_format($item, $service_info, $display) {
+  $classes = array('icon', 'socialfield-' . $item['service'], $service_info['icon']);
+  if (isset($display['settings']['classes']) && !empty($display['settings']['classes'])) {
+    $field_classes = explode(' ', $display['settings']['classes']);
+    $classes = array_merge($field_classes, $classes);
+  }
+
+  $hidden_text = '';
+  $add_hidden_text = $display['global_config']['hidden_text'];
+  if (isset($add_hidden_text) && $add_hidden_text === TRUE) {
+    $hidden_text = '<span class="element-invisible">' . check_plain($item['service']) . '</span>';
+  }
+
+  return '<i class="' . implode(' ', $classes) . '">' . $hidden_text . '</i>';
 }
 
 /**

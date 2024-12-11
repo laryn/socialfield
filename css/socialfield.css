@@ -22,6 +22,7 @@ a.socialfield {
   font-size: 24px;
   padding: 4px;
   background-color: #4a6ea9;
+  max-width: 60px;
 }
 
 /**

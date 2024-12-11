@@ -1,45 +1,70 @@
 {
     "_config_name": "socialfield.settings",
-    "_module":  "socialfield",
+    "_module": "socialfield",
+    "target": false,
+    "hidden_text": true,
     "services": {
         "facebook": {
             "name": "Facebook",
             "icon": "icon-facebook",
+            "iconapi": "facebook-logo",
+            "iconapi_fill": "facebook-logo-fill",
             "validation_pattern": "*facebook.com/*"
         },
         "twitter": {
             "name": "Twitter",
             "icon": "icon-twitter",
+            "iconapi": "twitter-logo",
+            "iconapi_fill": "twitter-logo-fill",
             "validation_pattern": "*twitter.com/*"
+        },
+        "x": {
+            "name": "X",
+            "icon": "icon-twitter",
+            "iconapi": "x-logo",
+            "iconapi_fill": "x-logo-fill",
+            "validation_pattern": "*x.com/*"
         },
         "instagram": {
             "name": "Instagram",
             "icon": "icon-instagram",
+            "iconapi": "instagram-logo",
+            "iconapi_fill": "instagram-logo-fill",
             "validation_pattern": "*instagram.com/*"
         },
         "linkedin": {
             "name": "LinkedIn",
             "icon": "icon-linkedin",
+            "iconapi": "linkedin-logo",
+            "iconapi_fill": "linkedin-logo-fill",
             "validation_pattern": "*linkedin.com/*"
         },
         "youtube": {
             "name": "YouTube",
             "icon": "icon-youtube",
+            "iconapi": "youtube-logo",
+            "iconapi_fill": "youtube-logo-fill",
             "validation_pattern": "*youtube.com/*"
         },
         "vimeo": {
             "name": "Vimeo",
             "icon": "icon-vimeo",
+            "iconapi": "video",
+            "iconapi_fill": "video-fill",
             "validation_pattern": "*vimeo.com/*"
         },
         "flickr": {
             "name": "Flickr",
             "icon": "icon-flickr",
+            "iconapi": "camera",
+            "iconapi_fill": "camera-fill",
             "validation_pattern": "*flickr.com/*"
         },
         "pinterest": {
             "name": "Pinterest",
             "icon": "icon-pinterest",
+            "iconapi": "pinterest-logo",
+            "iconapi_fill": "pinterest-logo-fill",
             "validation_pattern": "*pinterest.com/*"
         }
     }

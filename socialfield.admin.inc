@@ -11,6 +11,7 @@ function socialfield_settings() {
   $header = array(
     t('Name'),
     t('Service'),
+    t('Icon API'),
     t('Icon class'),
     t('Validation pattern'),
     t('Operations'),
@@ -37,6 +38,7 @@ function socialfield_settings() {
       $rows[] = array(
         $service['name'],
         $name,
+        $service['iconapi'],
         $service['icon'],
         str_replace("\n", '<br />', $service['validation_pattern']),
         backdrop_render($dropbuttons),
@@ -44,8 +46,12 @@ function socialfield_settings() {
     }
   }
 
-  $page = array();
-  $page['services'] = array(
+  $config = config('socialfield.settings');
+
+  $form = array(
+    '#config' => 'socialfield.settings',
+  );
+  $form['services'] = array(
     '#markup' => theme('table', array(
       'header' => $header,
       'rows' => $rows,
@@ -53,7 +59,26 @@ function socialfield_settings() {
     ))
   );
 
-  return $page;
+  $form['global'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Global settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['global']['new_windows'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Open links in new windows (not recommended)'),
+    '#description' => t('Forcing links to open in new windows makes it difficult for people to find their way back to this site, and is generally bad for accessibility. <br>Enabling this setting could hinder SEO.'),
+    '#default_value'  => $config->get('new_windows'),
+  );
+  $form['global']['remove_hidden_text'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Remove hidden labels from social links  (not recommended)'),
+    '#description' => t('Including the service name as hidden text is helpful for screen readers. <br>Enabling this setting could hinder SEO.'),
+    '#default_value'  => $config->get('remove_hidden_text'),
+  );
+
+  return system_settings_form($form);
 }
 
 /**
