@@ -11,9 +11,10 @@ function theme_socialfield_drag_components($variables) {
   $element = $variables['element'];
   $unique = socialfield_random_string();
   backdrop_add_tabledrag('socialfield-table-' . $unique, 'order', 'sibling', 'item-row-weight');
-  $services = config_get('socialfield.settings', 'services');
+  $config = config('socialfield.settings');
+  $services = $config->get('services');
 
-  $header = array(t($element['#title']), '', '', '');
+  $header = array(t($element['#title']), '', '', '', '');
   $rows = array();
   $index = 0;
 
@@ -24,13 +25,27 @@ function theme_socialfield_drag_components($variables) {
     }
     $current_element = $element['element_' . $index];
 
+
+    // Sanitize
+    $machine_name = check_plain($current_element['#service']);
+    $service_name = check_plain($services[$current_element['#service']]['name']);
+    $icon_name = check_plain($services[$current_element['#service']]['icon']);
+
+    if ($config->get('filled')) {
+      $icon_name .= '-fill';
+    }
+    $icon_options = array(
+      'attributes' => array(
+        'class' => array('socialfield-' . $machine_name),
+        'width' => 30,
+        'height' => 30,
+      ),
+    );
+
     $rows[] = array(
       'data' => array(
-        '<div class="social-links">' .
-          '<span class="socialfield socialfield-' . $current_element['#service'] . '">' .
-            '<i class="icon ' . $services[$current_element['#service']]['icon'] . '">' . t($services[$current_element['#service']]['name']) . '</i>' .
-          '</span>' .
-        '</div>',
+        t($service_name),
+        icon($icon_name, $icon_options),
         backdrop_render($current_element['url']),
         backdrop_render($current_element['weight']),
         backdrop_render($current_element['operation']),

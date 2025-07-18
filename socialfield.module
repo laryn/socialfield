@@ -23,7 +23,8 @@ function socialfield_menu() {
   $items['admin/config/media/socialfield'] = array(
     'title' => 'Social field',
     'description' => 'Social field settings',
-    'page callback' => 'socialfield_settings',
+    'page callback' => 'backdrop_get_form',
+    'page arguments' => array('socialfield_settings'),
     'access arguments' => array('administer socialfield'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'socialfield.admin.inc',
@@ -636,8 +637,9 @@ function socialfield_field_formatter_view($entity_type, $entity, $field, $instan
 
   switch ($display['type']) {
     case 'socialfield_formatter':
-      $services = config_get('socialfield.settings', 'services');
-      backdrop_add_css(backdrop_get_path('module', 'socialfield') . '/css/socialfield.css');
+      $config = config('socialfield.settings');
+      $services = $config->get('services');
+
       backdrop_sort($items, array('weight'));
       foreach ($items as $key => $item) {
         // Check if the service was deleted.
@@ -645,16 +647,36 @@ function socialfield_field_formatter_view($entity_type, $entity, $field, $instan
           continue;
         }
 
+        // Sanitize
+        $machine_name = check_plain($item['service']);
+        $service_name = check_plain($services[$item['service']]['name']);
+        $icon_name = check_plain($services[$item['service']]['icon']);
+
         $hidden_text = '';
         // Set hidden text on link.
         if (isset($display['settings']['link_text']) && $display['settings']['link_text']) {
-          $hidden_text = '<span class="element-invisible">' . check_plain($item['service']) . '</span>';
+          $hidden_text = '<span class="element-invisible">' . $service_name . '</span>';
         }
+
+        if ($config->get('filled')) {
+          $icon_name .= '-fill';
+        }
+        $icon_options = array(
+          'attributes' => array(
+            'class' => array('socialfield-' . $machine_name),
+            'width' => 30,
+            'height' => 30,
+          ),
+        );
+        $icon = icon($icon_name, $icon_options);
 
         $element[$key] = array(
           '#theme' => array('link__socialfield__' . $item['service'], 'link__socialfield', 'link'),
+          '#attached' => array(
+            'css' => array(backdrop_get_path('module', 'socialfield') . '/css/socialfield.css'),
+          ),
           '#path' => $item['url'],
-          '#text' => '<i class="icon ' . $services[$item['service']]['icon'] . '">' . $hidden_text . '</i>',
+          '#text' => $icon . $hidden_text,
           '#options' => array(
             'html' => TRUE,
             'attributes' => array(

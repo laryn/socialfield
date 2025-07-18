@@ -7,45 +7,80 @@
 /**
  * Page callback: Table that displays all available services.
  */
-function socialfield_settings() {
+function socialfield_settings($form) {
+  $config = config('socialfield.settings');
+
+  $form = array(
+    '#config' => 'socialfield.settings',
+    '#attached' => array(
+      'css' => array(backdrop_get_path('module', 'socialfield') . '/css/socialfield.css'),
+    ),
+  );
+  $form['settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Socialfield Settings'),
+    '#collapsible' => TRUE,
+  );
+  $form['settings']['filled'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use filled versions of icons'),
+    '#default_value' => $config->get('filled'),
+  );
+
   $header = array(
-    t('Name'),
     t('Service'),
-    t('Icon class'),
+    t('Icon'),
+    t('Machine Name'),
     t('Validation pattern'),
     t('Operations'),
   );
 
   $rows = array();
-  $services = config_get('socialfield.settings', 'services');
+  $services = $config->get('services');
   if (is_array($services)) {
     foreach ($services as $name => $service) {
+      // Sanitize
+      $machine_name = check_plain($name);
+      $service_name = check_plain($service['name']);
+      $icon_name = check_plain($service['icon']);
+      $validation_pattern = check_plain($service['validation_pattern']);
+
       $dropbuttons = array(
         '#type' => 'dropbutton',
         '#links' => array(
           'configure' => array(
             'title' => t('Configure'),
-            'href' => 'admin/config/media/socialfield/' . $name . '/edit',
+            'href' => 'admin/config/media/socialfield/' . $machine_name . '/edit',
           ),
           'delete' => array(
             'title' => t('Delete'),
-            'href' => 'admin/config/media/socialfield/' . $name . '/delete',
+            'href' => 'admin/config/media/socialfield/' . $machine_name . '/delete',
           ),
         ),
       );
 
+      if ($config->get('filled')) {
+        $icon_name .= '-fill';
+      }
+      $icon_options = array(
+        'attributes' => array(
+          'class' => array('socialfield-' . $machine_name),
+          'width' => 30,
+          'height' => 30,
+        ),
+      );
+
       $rows[] = array(
-        $service['name'],
+        $service_name,
+        icon($icon_name, $icon_options),
         $name,
-        $service['icon'],
-        str_replace("\n", '<br />', $service['validation_pattern']),
+        str_replace("\n", '<br />', $validation_pattern),
         backdrop_render($dropbuttons),
       );
     }
   }
 
-  $page = array();
-  $page['services'] = array(
+  $form['services'] = array(
     '#markup' => theme('table', array(
       'header' => $header,
       'rows' => $rows,
@@ -53,7 +88,7 @@ function socialfield_settings() {
     ))
   );
 
-  return $page;
+  return system_settings_form($form);
 }
 
 /**
@@ -75,12 +110,12 @@ function socialfield_add_service($form, $form_state) {
   $form['service_icon'] = array(
     '#type' => 'textfield',
     '#title' => t('CSS classes'),
-    '#description' => t('Separate multiple classes with spaces: <em>icon-facebook fa fa-facebook-square</em>'),
+    '#description' => t('Separate multiple classes with spaces. See <a href="https://docs.backdropcms.org/documentation/icon-api">the Backdrop Icon API</a>'),
   );
   $form['service_validation_pattern'] = array(
     '#type' => 'textarea',
     '#title' => t('URL validation pattern'),
-    '#description' => t('Enter the list of allowed URL patterns separated by new lines.<br />Leave empty to allow user input any URLs.<br />The "*" character is a wildcard.<br />Example: *facebook.com/* for any page on Facebook site.'),
+    '#description' => t('Enter the list of allowed URL patterns separated by new lines.<br />Leave empty to allow user input any URLs.<br />The "*" character is a wildcard.<br />Example: *youtube.com/* for any page on the YouTube site.'),
   );
   $form['submit'] = array(
     '#type' => 'submit',

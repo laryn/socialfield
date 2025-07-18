@@ -1,46 +1,46 @@
 {
     "_config_name": "socialfield.settings",
-    "_module":  "socialfield",
+    "_module": "socialfield",
     "services": {
-        "facebook": {
-            "name": "Facebook",
-            "icon": "icon-facebook",
-            "validation_pattern": "*facebook.com/*"
-        },
-        "twitter": {
-            "name": "Twitter",
-            "icon": "icon-twitter",
-            "validation_pattern": "*twitter.com/*"
-        },
-        "instagram": {
-            "name": "Instagram",
-            "icon": "icon-instagram",
-            "validation_pattern": "*instagram.com/*"
-        },
         "linkedin": {
             "name": "LinkedIn",
-            "icon": "icon-linkedin",
+            "icon": "linkedin-logo",
             "validation_pattern": "*linkedin.com/*"
         },
         "youtube": {
             "name": "YouTube",
-            "icon": "icon-youtube",
+            "icon": "youtube-logo",
             "validation_pattern": "*youtube.com/*"
         },
         "vimeo": {
             "name": "Vimeo",
-            "icon": "icon-vimeo",
+            "icon": "video",
             "validation_pattern": "*vimeo.com/*"
         },
         "flickr": {
             "name": "Flickr",
-            "icon": "icon-flickr",
+            "icon": "camera",
             "validation_pattern": "*flickr.com/*"
         },
         "pinterest": {
             "name": "Pinterest",
-            "icon": "icon-pinterest",
+            "icon": "pinterest-logo",
             "validation_pattern": "*pinterest.com/*"
+        },
+        "facebook": {
+            "name": "Facebook",
+            "icon": "facebook-logo",
+            "validation_pattern": "*facebook.com/*"
+        },
+        "twitter": {
+            "name": "Twitter",
+            "icon": "twitter-logo",
+            "validation_pattern": "*twitter.com/*"
+        },
+        "instagram": {
+            "name": "Instagram",
+            "icon": "instagram-logo",
+            "validation_pattern": "*instagram.com/*"
         }
     }
 }

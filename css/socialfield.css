@@ -18,62 +18,57 @@ a.socialfield {
   margin-right: 5px;
 }
 .socialfield .icon {
-  color: #FFF;
   font-size: 24px;
   padding: 4px;
-  background-color: #4a6ea9;
 }
 
 /**
  * Service-specific colors & sizes.
  */
-.socialfield-reddit .icon {
-  padding: 8px 7px 8px 1px;
-  background-color: #ff4500;
+.socialfield-reddit {
+  fill: #ff4500;
 }
-.socialfield-slideshare .icon {
-  padding: 8px 2px 8px 6px;
-  background-color: #4a6ea9;
+.socialfield-slideshare {
+  fill: #4a6ea9;
 }
-.socialfield-yahoo .icon {
-  padding: 8px 8px 8px 0px;
-  background-color: #720e9e;
+.socialfield-yahoo {
+  fill: #720e9e;
 }
-.socialfield-facebook .icon {
-  background-color: #3b5998;
+.socialfield-facebook {
+  fill: #3b5998;
 }
-.socialfield-twitter .icon {
-  background-color: #55acee;
+.socialfield-twitter {
+  fill: #55acee;
 }
-.socialfield-instagram .icon {
-  background-color: #3f729b;
+.socialfield-instagram {
+  fill: #3f729b;
 }
-.socialfield-linkedin .icon {
-  background-color: #0e76a8;
+.socialfield-linkedin {
+  fill: #0e76a8;
 }
-.socialfield-youtube .icon {
-  background-color: #c4302b;
+.socialfield-youtube {
+  fill: #c4302b;
 }
-.socialfield-vimeo .icon {
-  background-color: #44bbff;
+.socialfield-vimeo {
+  fill: #44bbff;
 }
-.socialfield-delicious .icon {
-  background-color: #222222;
+.socialfield-delicious {
+  fill: #222222;
 }
-.socialfield-digg .icon {
-  background-color: #7a9ac2;
+.socialfield-digg {
+  fill: #7a9ac2;
 }
-.socialfield-flickr .icon {
-  background-color: #ff0084;
+.socialfield-flickr {
+  fill: #ff0084;
 }
-.socialfield-myspace .icon {
-  background-color: #6087bb;
+.socialfield-myspace {
+  fill: #6087bb;
 }
-.socialfield-pinterest .icon {
-  background-color: #c8232c;
+.socialfield-pinterest {
+  fill: #c8232c;
 }
-.socialfield-stumbleupon .icon {
-  background-color: #f74425;
+.socialfield-stumbleupon {
+  fill: #f74425;
 }
 
 /**

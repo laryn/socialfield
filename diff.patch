@@ -1,0 +1,72 @@
+diff --git a/docroot/modules/contrib/socialfield/socialfield.module b/docroot/modules/contrib/socialfield/socialfield.module
+index 74a0f76..031ccdb 100644
+--- a/docroot/modules/contrib/socialfield/socialfield.module
++++ b/docroot/modules/contrib/socialfield/socialfield.module
+@@ -98,30 +98,33 @@ function socialfield_service_exists($name){
+  * Implements hook_field_info().
+  */
+ function socialfield_field_info() {
+-  $used_services = array_keys(config_get('socialfield.settings', 'services'));
+-  $used_services = array_combine($used_services, $used_services);
+-
+-  $displayed_services = array('twitter', 'facebook', 'googleplus');
+-  $displayed_services = array_combine($displayed_services, $displayed_services);
+-
+-  $weight_values = range(-10, count($used_services) - 11);
+-  $weights = array_combine($used_services, $weight_values);
+-
+-  return array(
+-    'social_links_field' => array(
+-      'label' => t('Social links'),
+-      'description' => t('Social links'),
+-      'default_widget' => 'socialfield_widget',
+-      'default_formatter' => 'socialfield_formatter',
+-      'property_type' => 'socialfield',
+-      'property_callbacks' => array('socialfield_property_callback_property_info_callback'),
+-      'instance_settings' => array(
+-        'used_services' => $used_services,
+-        'services' => $displayed_services,
+-        'weights' => $weights,
++  $services = config_get('socialfield.settings', 'services');
++  if (is_array($services)) {
++    $used_services = array_keys($services);
++    $used_services = array_combine($used_services, $used_services);
++
++    $displayed_services = array('twitter', 'facebook', 'googleplus');
++    $displayed_services = array_combine($displayed_services, $displayed_services);
++
++    $weight_values = range(-10, count($used_services) - 11);
++    $weights = array_combine($used_services, $weight_values);
++
++    return array(
++      'social_links_field' => array(
++        'label' => t('Social links'),
++        'description' => t('Social links'),
++        'default_widget' => 'socialfield_widget',
++        'default_formatter' => 'socialfield_formatter',
++        'property_type' => 'socialfield',
++        'property_callbacks' => array('socialfield_property_callback_property_info_callback'),
++        'instance_settings' => array(
++          'used_services' => $used_services,
++          'services' => $displayed_services,
++          'weights' => $weights,
++        ),
+       ),
+-    ),
+-  );
++    );
++  }
+ }
+ 
+ /**
+@@ -132,8 +135,8 @@ function socialfield_property_callback_property_info_callback(&$info, $entity_ty
+   $property = &$info[$entity_type]['bundles'][$instance['bundle']]['properties'][$name];
+ 
+   $property['type'] = 'socialfield';
+-  $property['getter callback'] = 'entity_metadata_field_verbatim_get';
+-  $property['setter callback'] = 'entity_metadata_field_verbatim_set';
++  $property['getter callback'] = 'entity_plus_metadata_field_verbatim_get';
++  $property['setter callback'] = 'entity_plus_metadata_field_verbatim_set';
+   unset($property['query callback']);
+ }
+ 
