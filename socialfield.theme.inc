@@ -26,13 +26,12 @@ function theme_socialfield_drag_components($variables) {
     $current_element = $element['element_' . $index];
 
 
+    $machine_name = $current_element['#service'];
     // Sanitize
-    $machine_name = check_plain($current_element['#service']);
-    $service_name = check_plain($services[$current_element['#service']]['name']);
-    $icon_name = check_plain($services[$current_element['#service']]['icon']);
-
+    $service_label = check_plain($services[$current_element['#service']]['label']);
+    $icon_name = check_plain($services[$current_element['#service']]['iconapi']);
     if ($config->get('filled')) {
-      $icon_name .= '-fill';
+      $icon_name = check_plain($services[$current_element['#service']]['iconapi_fill']);
     }
     $icon_options = array(
       'attributes' => array(
@@ -44,7 +43,7 @@ function theme_socialfield_drag_components($variables) {
 
     $rows[] = array(
       'data' => array(
-        t($service_name),
+        t($service_label),
         icon($icon_name, $icon_options),
         backdrop_render($current_element['url']),
         backdrop_render($current_element['weight']),

@@ -107,9 +107,12 @@ function socialfield_settings($form, &$form_state) {
 
       $iconapi_name = check_plain($service_info['iconapi']);
       $iconapi_fill_name = check_plain($service_info['iconapi_fill']);
+      $iconapi_names = '<strong>' . $iconapi_name . '</strong><br>' . $iconapi_fill_name;
+
       $icon_name = $iconapi_name;
       if ($config->get('filled')) {
         $icon_name = $iconapi_fill_name;
+        $iconapi_names = $iconapi_name . '<br><strong>' . $iconapi_fill_name . '</strong>';
       }
 
       // The 'icon' classes is added by icon(), so we don't ad it here.
@@ -133,7 +136,7 @@ function socialfield_settings($form, &$form_state) {
         'data' => array(
           $service_name,
           icon($icon_name, $icon_options),
-          $iconapi_name . '<br>' . $iconapi_fill_name,
+          $iconapi_names,
           $icon_classes_saved,
           str_replace("\n", '<br />', $validation_pattern),
           backdrop_render($dropbuttons),

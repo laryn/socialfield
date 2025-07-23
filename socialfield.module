@@ -165,7 +165,7 @@ function socialfield_field_instance_settings_form($field, $instance) {
   $social_services = config_get('socialfield.settings', 'services');
   $options = array();
   foreach ($social_services as $name => $service) {
-    $options[$name] = $service['name'];
+    $options[$name] = $service['label'];
   }
 
   // Removing services from instance settings that were deleted from module settings.
@@ -208,13 +208,14 @@ function _socialfield_field_instance_settings_form($form, &$form_state) {
     }
     $use_service = in_array($service_name, $form_state['#used_services']);
     $display_service = in_array($service_name, $form_state['#services']);
-    $service_label = ucfirst($service_name);
+    $service_label = check_plain($services[$service_name]['label']);
+    $icon_classes = check_plain($services[$service_name]['icon_css']);
 
     $service_markup = '<div class="social-links social-links-instance-settings">' .
-        '<span class="service-' . $service_name . '">' .
-          '<i class="icon ' . $services[$service_name]['icon'] . '"></i></span>' .
-        '<span class="instance-settings-table-service-name">' . $service_label . '</span>' .
-      '</div>';
+      '<span class="service-' . $service_name . '">' .
+        '<i class="icon ' . $icon_classes . '"></i></span>' .
+      '<span class="instance-settings-table-service-name">' . $service_label . '</span>' .
+    '</div>';
 
     $row = array(
       'service_name' => array(
@@ -452,9 +453,12 @@ function socialfield_field_widget_form(&$form, &$form_state, $field, $instance, 
 
   // Creating form.
   foreach ($form_state['services'] as $i => $service) {
+
     // Checking if service was deleted from module settings.
     if (!isset($all_services[$service])) {
-      $element['#num_elements']--;
+      if (isset($element['#num_elements'])) {
+        $element['#num_elements']--;
+      }
       $form_state['num_elements']--;
       $element['social_buttons']['#num_elements']--;
       continue;
@@ -680,11 +684,17 @@ function socialfield_field_formatter_settings_summary($field, $instance, $view_m
  */
 function socialfield_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
-  $services = config_get('socialfield.settings', 'services');
-  $css_path = backdrop_get_path('module', 'socialfield') . '/css/socialfield.css';
-
   $config = config('socialfield.settings');
   $services = $config->get('services');
+  $add_hidden_text = $config->get('hidden_text');
+  $new_windows = $config->get('new_windows');
+  $filled = $config->get('filled');
+
+  // Prepare options needed for display types.
+  $options = array(
+    'icon_classes' => explode(' ', check_plain($display['settings']['classes'])),
+    'hidden_text' => '',
+  );
 
   // Sort the icons into the requested order.
   backdrop_sort($items, array('weight'));
@@ -695,32 +705,44 @@ function socialfield_field_formatter_view($entity_type, $entity, $field, $instan
     }
 
     $service_info = $services[$item['service']];
+    if (isset($add_hidden_text) && $add_hidden_text === TRUE) {
+      $options['hidden_text'] = check_plain($service_info['label']);
+    }
+
+    // Add our service-specific class.
+    $options['icon_classes'][] = 'socialfield-' . $service_info['service_name'];
+    $icon_classes = explode(' ', check_plain($service_info['icon_css']));
+    $options['icon_classes'] = array_merge($options['icon_classes'], $options['icon_classes']);
 
     switch ($display['type']) {
       case 'socialfield_formatter_icon':
-        $icon_markup = _socialfield_formatter_format_icon($service_info);
+        $options['iconapi_name'] = check_plain($service_info['iconapi']);
+        if ($filled) {
+          $options['iconapi_name'] = check_plain($service_info['iconapi_fill']);
+        }
+        $icon_markup = _socialfield_formatter_format_icon($item, $service_info, $options);
         break;
+
       case 'socialfield_formatter':
-        $icon_markup = _socialfield_formatter_format($item, $service_info, $display);
+        $icon_markup = _socialfield_formatter_format($item, $service_info, $options);
         break;
     }
 
     $link_attributes = array(
-      'class' => array('field-item', 'socialfield'),
+      'class' => array('socialfield'),
     );
-
-    $new_windows = $config->get('new_windows');
     if ($new_windows) {
       $link_attributes['target'] = '_blank';
     }
 
+    $css_path = backdrop_get_path('module', 'socialfield') . '/css/socialfield.css';
     $element[$key] = array(
       '#theme' => array('link__socialfield__' . $item['service'], 'link__socialfield', 'link'),
       '#attached' => array(
         'css' => array($css_path),
       ),
       '#path' => $item['url'],
-      '#text' => $icon_markup . $hidden_text,
+      '#text' => $icon_markup,
       '#options' => array(
         'html' => TRUE,
         'attributes' => $link_attributes,
@@ -741,86 +763,53 @@ function socialfield_field_formatter_view($entity_type, $entity, $field, $instan
 /**
  * Helper function, renders an icon as an <i> tag with classes.
  *
- * @see socialfield_field_formatter_view().
- */
-function _socialfield_formatter_format_icon($service) {
-  $config = config('socialfield.settings');
-
-  // Sanitize
-  $service_name = check_plain($service['name']);
-  $icon_classes_saved = check_plain($service['icon']);
-  $icon_classes = explode(' ', $icon_classes_saved);
-
-  // Set hidden text on link.
-  $hidden_text = '';
-  $remove_hidden = $config->get('hidden_text');
-  if ($remove_hidden !== TRUE) {
-    $hidden_text = '<span class="element-invisible">' . $service_name . '</span>';
-  }
-
-  $icon_classes[] = 'field-item';
-  $icon_classes[] = 'socialfield';
-  $icon_classes[] = 'socialfield-' . $machine_name;
-  $icon_options = array(
-    'attributes' => array(
-      'class' => $icon_classes,
-      'width' => 30,
-      'height' => 30,
-    ),
-  );
-
-  $icon_name = check_plain($service['iconapi']);
-  if ($config->get('filled')) {
-    $icon_name = check_plain($service['iconapi_fill']);
-  }
-
-  // The 'icon' classes is added by icon(), so we don't ad it here.
-  $icon_classes[] = 'socialfield';
-  $icon_classes[] = 'socialfield-' . $machine_name;
-  $icon_options = array(
-    'attributes' => array(
-      'class' => $icon_classes,
-      'width' => 30,
-      'height' => 30,
-    ),
-  );
-
-  $classes = array('socialfield-' . $item['service']);
-  if (isset($display['settings']['classes']) && !empty($display['settings']['classes'])) {
-    $field_classes = explode(' ', $display['settings']['classes']);
-    $classes = array_merge($field_classes, $classes);
-    dpm($classes);
-  }
-
-  $attributes = array('class' => $classes);
-  $options = array('attributes' => $attributes);
-
-  $add_hidden_text = $display['global_config']['hidden_text'];
-  if (isset($add_hidden_text) && $add_hidden_text === TRUE) {
-    $options['alt'] = check_plain($item['service']);
-  }
-
-  return icon($icon_name, $options);
-}
-/**
- * Helper function, renders an icon as a SVG tag using Icon API.
+ * @param array $item
+ *   Item to be rendered, contains URL for link.
+ * @param array $service_info
+ *   Raw (unsanitixed) configuration for the service.
+ * @param array $options
+ *   Settings and options that contain the following:
+ *   - 'icon_classes' - Merged array of all classses.
+ *   - 'hidden_text' - Label of the service.
+ *   - 'iconapi_name' - name of the iconapi icon.
  *
  * @see socialfield_field_formatter_view().
  */
-function _socialfield_formatter_format($item, $service_info, $display) {
-  $classes = array('icon', 'socialfield-' . $item['service'], $service_info['icon']);
-  if (isset($display['settings']['classes']) && !empty($display['settings']['classes'])) {
-    $field_classes = explode(' ', $display['settings']['classes']);
-    $classes = array_merge($field_classes, $classes);
-  }
+function _socialfield_formatter_format_icon($item, $service_info, $options) {
+  $icon_options = array(
+    'attributes' => array(
+      'class' => array_unique($options['icon_classes']),
+      'width' => 30,
+      'height' => 30,
+      'alt' => $options['hidden_text'],
+    ),
+  );
 
-  $hidden_text = '';
-  $add_hidden_text = $display['global_config']['hidden_text'];
-  if (isset($add_hidden_text) && $add_hidden_text === TRUE) {
-    $hidden_text = '<span class="element-invisible">' . check_plain($item['service']) . '</span>';
-  }
+  return icon($options['iconapi_name'], $icon_options);
+}
 
-  return '<i class="' . implode(' ', $classes) . '">' . $hidden_text . '</i>';
+/**
+ * Helper function, renders an icon as a SVG tag using Icon API.
+ *
+ * @param array $item
+ *   Item to be rendered, contains URL for link.
+ * @param array $service_info
+ *   Raw (unsanitixed) configuration for the service.
+ * @param array $options
+ *   Settings and options that contain the following:
+ *   - 'field_classes' - classes from the field display settings.
+ *   - 'hidden_text' - Label of the service.
+ *
+ * @see socialfield_field_formatter_view().
+ */
+function _socialfield_formatter_format($item, $service_info, $options) {
+  // Add the icon class because IconAPI isn't doing it for us.
+  $options['icon_classes'][] = 'icon';
+  $icon_classes = array_unique($options['icon_classes']);
+
+  $hidden_text = '<span class="element-invisible">' . $options['hidden_text'] . '</span>';
+
+  return '<i class="' . implode(' ', $icon_classes) . '">' . $hidden_text . '</i>';
 }
 
 /**
