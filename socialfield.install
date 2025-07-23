@@ -27,92 +27,6 @@ function socialfield_field_schema($field) {
 }
 
 /**
- * Implements hook_install().
- */
-function socialfield_install() {
-  $base_services = array(
-    'facebook' => array(
-      'name' => 'Facebook',
-      'icon' => 'icon-facebook',
-      'validation_pattern' => '*facebook.com/*',
-    ),
-    'twitter' => array(
-      'name' => 'Twitter',
-      'icon' => 'icon-twitter',
-      'validation_pattern' => '*twitter.com/*',
-    ),
-    'instagram' => array(
-      'name' => 'Instagram',
-      'icon' => 'icon-instagram',
-      'validation_pattern' => '*instagram.com/*',
-    ),
-    'linkedin' => array(
-      'name' => 'LinkedIn',
-      'icon' => 'icon-linkedin',
-      'validation_pattern' => '*linkedin.com/*',
-    ),
-    'youtube' => array(
-      'name' => 'YouTube',
-      'icon' => 'icon-youtube',
-      'validation_pattern' => '*youtube.com/*',
-    ),
-    'vimeo' => array(
-      'name' => 'Vimeo',
-      'icon' => 'icon-vimeo',
-      'validation_pattern' => '*vimeo.com/*',
-    ),
-    'delicious' => array(
-      'name' => 'Delicious',
-      'icon' => 'icon-delicious',
-      'validation_pattern' => '*delicious.com/*',
-    ),
-    'digg' => array(
-      'name' => 'Digg',
-      'icon' => 'icon-digg',
-      'validation_pattern' => '*digg.com/*',
-    ),
-    'flickr' => array(
-      'name' => 'Flickr',
-      'icon' => 'icon-flickr',
-      'validation_pattern' => '*flickr.com/*',
-    ),
-    'yahoo' => array(
-      'name' => 'Yahoo!',
-      'icon' => 'icon-yahoo',
-      'validation_pattern' => '*yahoo.com/*',
-    ),
-    'myspace' => array(
-      'name' => 'Myspace',
-      'icon' => 'icon-myspace',
-      'validation_pattern' => '*myspace.com/*',
-    ),
-    'pinterest' => array(
-      'name' => 'Pinterest',
-      'icon' => 'icon-pinterest',
-      'validation_pattern' => '*pinterest.com/*',
-    ),
-    'reddit' => array(
-      'name' => 'Reddit',
-      'icon' => 'icon-reddit',
-      'validation_pattern' => '*reddit.com/*',
-    ),
-    'slideshare' => array(
-      'name' => 'Slideshare',
-      'icon' => 'icon-slideshare',
-      'validation_pattern' => '*slideshare.net/*',
-    ),
-    'stumbleupon' => array(
-      'name' => 'Stumbleupon',
-      'icon' => 'icon-stumbleupon',
-      'validation_pattern' => '*stumbleupon.com/*',
-    ),
-  );
-
-  config_set('socialfield.settings', 'services', $base_services);
-}
-
-
-/**
  * Moves Socialfield settings from variable to config.
  */
 function socialfield_update_1000() {
@@ -122,4 +36,127 @@ function socialfield_update_1000() {
   $config->save();
 
   variable_del('socialfield_services');
+}
+
+/**
+ * Update socialfield settings.
+ */
+function socialfield_update_1001() {
+  $config = config('socialfield.settings');
+  $services = $config->get('services');
+  $default_services = socialfield_default_services();
+
+  foreach ($services as $service_name => $service_info) {
+    // Mark the service as enabled.
+    $services[$service_name]['enabled'] = TRUE;
+    // Add a service name key.
+    $services[$service_name]['service_name'] = $service_name;
+    // Change the 'name' key to 'label'.
+    if (isset($services[$service_name]['name'])) {
+      $services[$service_name]['label'] = $services[$service_name]['name'];
+      unset($services[$service_name]['name']);
+    }
+    // Change the 'icon' key to 'icon_css'
+    if (isset($services[$service_name]['icon'])) {
+      $services[$service_name]['icon_css'] = $services[$service_name]['icon'];
+      unset($services[$service_name]['icon']);
+    }
+    // Add the icon API info.
+    if (isset($default_services[$service_name])) {
+      $services[$service_name]['iconapi'] = $default_services[$service_name]['iconapi'];
+      $services[$service_name]['iconapi_fill'] = $default_services[$service_name]['iconapi_fill'];
+      // Remove the default service if it had been overridden.
+      unset($default_services[$service_name]);
+    }
+  }
+
+  // Add the other default services as disabled.
+  foreach ($default_services as $service_name => $service_info) {
+    $services[$service_name] = $default_services[$service_name];
+    $services[$service_name]['enabled'] = FALSE;
+  }
+
+  $config->set('services', $services);
+  $config->save();
+}
+
+/**
+ * Update socialfield settings.
+ */
+function socialfield_default_services() {
+  $services = array(
+    "facebook" => array(
+      "name" => "Facebook",
+      "icon" => "icon-facebook",
+      "iconapi" => "facebook-logo",
+      "iconapi_fill" => "facebook-logo-fill",
+      "validation_pattern" => "*facebook.com/*",
+      "enabled" => TRUE,
+    ),
+    "twitter" => array(
+      "name" => "Twitter",
+      "icon" => "icon-twitter",
+      "iconapi" => "twitter-logo",
+      "iconapi_fill" => "twitter-logo-fill",
+      "validation_pattern" => "*twitter.com/*",
+      "enabled" => TRUE,
+    ),
+    "x" => array(
+      "name" => "X",
+      "icon" => "icon-twitter",
+      "iconapi" => "x-logo",
+      "iconapi_fill" => "x-logo-fill",
+      "validation_pattern" => "*x.com/*",
+      "enabled" => TRUE,
+    ),
+    "instagram" => array(
+      "name" => "Instagram",
+      "icon" => "icon-instagram",
+      "iconapi" => "instagram-logo",
+      "iconapi_fill" => "instagram-logo-fill",
+      "validation_pattern" => "*instagram.com/*",
+      "enabled" => TRUE,
+    ),
+    "linkedin" => array(
+      "name" => "LinkedIn",
+      "icon" => "icon-linkedin",
+      "iconapi" => "linkedin-logo",
+      "iconapi_fill" => "linkedin-logo-fill",
+      "validation_pattern" => "*linkedin.com/*",
+      "enabled" => TRUE,
+    ),
+    "youtube" => array(
+      "name" => "YouTube",
+      "icon" => "icon-youtube",
+      "iconapi" => "youtube-logo",
+      "iconapi_fill" => "youtube-logo-fill",
+      "validation_pattern" => "*youtube.com/*",
+      "enabled" => TRUE,
+    ),
+    "vimeo" => array(
+      "name" => "Vimeo",
+      "icon" => "icon-vimeo",
+      "iconapi" => "video",
+      "iconapi_fill" => "video-fill",
+      "validation_pattern" => "*vimeo.com/*",
+      "enabled" => TRUE,
+    ),
+    "flickr" => array(
+      "name" => "Flickr",
+      "icon" => "icon-flickr",
+      "iconapi" => "camera",
+      "iconapi_fill" => "camera-fill",
+      "validation_pattern" => "*flickr.com/*",
+      "enabled" => TRUE,
+    ),
+    "pinterest" => array(
+      "name" => "Pinterest",
+      "icon" => "icon-pinterest",
+      "iconapi" => "pinterest-logo",
+      "iconapi_fill" => "pinterest-logo-fill",
+      "validation_pattern" => "*pinterest.com/*",
+      "enabled" => TRUE,
+    ),
+  );
+  return $services;
 }
